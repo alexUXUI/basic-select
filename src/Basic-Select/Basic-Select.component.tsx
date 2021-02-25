@@ -81,6 +81,10 @@ export const BasicSelect: FC<BasicSelectProps> = ({
             if (listHasItem) {
                 focusedListItemRef.current.focus()
             }
+        } else {
+            if (selectedOption && basicSelectRef && basicSelectRef.current) {
+                basicSelectRef.current.focus()
+            }
         }
     }, [isOpen])
 
@@ -104,18 +108,18 @@ export const BasicSelect: FC<BasicSelectProps> = ({
         }
     }
 
-    const handleDocumentKeydowns = (e: KeyboardEvent) => {
+    const handleDocumentKeydowns = (e: any) => {
         console.log(e)
         if (isOpen) {
             if (e.key === "ArrowDown") {
-                if ((e?.srcElement as any).nextSibling) {
-                    (e?.srcElement as any).nextSibling.focus()
+                if (e && e.target && e.target.nextSibling) {
+                    e.target.nextSibling.focus();
                 }
             }
 
             else if (e.key === "ArrowUp") {
-                if ((e?.srcElement as any).previousSibling) {
-                    (e?.srcElement as any).previousSibling.focus()
+                if (e && e.target && e.target.previousSibling) {
+                    e.target.previousSibling.focus()
                 }
             }
         }
@@ -167,7 +171,7 @@ export const BasicSelect: FC<BasicSelectProps> = ({
                                                         console.log('closed')
                                                     }}
                                                     onKeyDown={({ key }) => {
-                                                        if (key === "Enter") {
+                                                        if (keysThatToggleMenu.includes(key)) {
                                                             setSelectedOption(option)
                                                             onChange && onChange(option)
                                                             setIsOpen(false)
@@ -185,16 +189,12 @@ export const BasicSelect: FC<BasicSelectProps> = ({
                                                     ref={focusedListItemRef}
                                                     key={i}
                                                     onClick={(e) => {
-                                                        console.log('setting selected')
                                                         setSelectedOption(option)
-                                                        console.log('set selected')
                                                         onChange && onChange(option)
-                                                        console.log('closing')
                                                         setIsOpen(false)
-                                                        console.log('closed')
                                                     }}
                                                     onKeyDown={({ key }) => {
-                                                        if (key === "Enter") {
+                                                        if (keysThatToggleMenu.includes(key)) {
                                                             setSelectedOption(option)
                                                             onChange && onChange(option)
                                                             setIsOpen(false)
@@ -210,16 +210,12 @@ export const BasicSelect: FC<BasicSelectProps> = ({
                                                 tabIndex={0}
                                                 key={i}
                                                 onClick={(e) => {
-                                                    console.log('setting selected')
                                                     setSelectedOption(option)
-                                                    console.log('set selected')
                                                     onChange && onChange(option)
-                                                    console.log('closing')
                                                     setIsOpen(false)
-                                                    console.log('closed')
                                                 }}
                                                 onKeyDown={({ key }) => {
-                                                    if (key === "Enter") {
+                                                    if (keysThatToggleMenu.includes(key)) {
                                                         setSelectedOption(option)
                                                         onChange && onChange(option)
                                                         setIsOpen(false)
