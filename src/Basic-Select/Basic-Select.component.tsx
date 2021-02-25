@@ -316,6 +316,7 @@ export const BasicSelectListItem: FC<BasicSelectListItemProps> = ({
 }): JSX.Element => {
     return (
         <StyledMenuItem
+            data-testid='basic-select__menu-item'
             tabIndex={0}
             ref={listItemHasFocus ? focusedListItemRef : null}
             onClick={(e) => {
