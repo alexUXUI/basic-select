@@ -27,7 +27,7 @@ export const StyledDownArrowWrapper = styled.span.attrs((props) => ({
 `
 
 export const StyledPlaceHolderWrapper = styled.span`
-    border: 1px solid #eaeaea;
+    border: 10px solid pink;
     border-radius: 14px;
     padding: 20px;
     display: flex;
@@ -38,9 +38,14 @@ export const StyledMenu = styled.ul`
     list-style: none;
     padding: 0;
     border: 1px solid #eaeaea;
+    background: cornflowerblue;
     border-radius: 14px;
 `
 
 export const StyledMenuItem = styled.li`
     width: 100%;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 `

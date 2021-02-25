@@ -40,13 +40,24 @@ export const BasicSelect: FC<BasicSelectProps> = ({
     onKeyDown,
 }): JSX.Element => {
 
+    /**
+     * Local state
+     * 1) isOpen = is the drop down menu open?
+     * 2) selectedOption = is there a selected option?
+     */
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [selectedOption, setSelectedOption] = useState<Option | undefined>(undefined);
 
+    // root DOM node of entire component
     const basicSelectRef = useRef<HTMLDivElement>(null);
+
+    // DOM node for the menu
     const menuRef = useRef<HTMLDivElement>(null);
+
+    // DOM node for currently focused list item
     const focusedListItemRef = useRef<HTMLLIElement>(null);
 
+    // toggles open and closed
     const keysThatToggleMenu = [" ", "Enter"];
 
     /**
@@ -65,13 +76,13 @@ export const BasicSelect: FC<BasicSelectProps> = ({
     }, [isOpen])
 
     /**
-     * This effect sets the current value of the dropdown if the user 
+     * This effect sets the default value of the dropdown if the user 
      * specifices one through the props
      */
     useLayoutEffect(() => {
         if (value) {
-            const currentValue = options.filter((option: Option) => option.value == value)
-            setSelectedOption(currentValue[0])
+            const defaultValueFromProps = options.filter((option: Option) => option.value == value)
+            setSelectedOption(defaultValueFromProps[0])
         }
     }, [value])
 
@@ -79,7 +90,8 @@ export const BasicSelect: FC<BasicSelectProps> = ({
      * This effect puts the focus on the correct list item 
      * when the drop down menu is opened. If a value was previously
      * selected, this will put the focus on that element. If not, this
-     * will put the focus on the first element in the list
+     * will put the focus on the first element in the list. When the menu
+     * is closed, this effect makes sure to return the focus back on the root.
      */
     useEffect(() => {
         if (isOpen) {
@@ -95,6 +107,11 @@ export const BasicSelect: FC<BasicSelectProps> = ({
         }
     }, [isOpen])
 
+    /**
+     * This click handler makes sure that if the user clicks outside the
+     * menu while it is open, the menu closes. It also ensures that clicks
+     * inside the drop down do not close the menu
+     */
     const handleDocumentClicks = (e: MouseEvent) => {
         const { target } = e;
 
@@ -115,6 +132,12 @@ export const BasicSelect: FC<BasicSelectProps> = ({
         }
     }
 
+    /**
+     * This keydown handler helps ensure  
+     * that the user can use the arrow keys to naviagte the options
+     * it also makes sure that Escape key closes the menu and that Tab key
+     * does not work inside the menu while it is open. This is default <select /> behavior.
+     */
     // TODO find an event type that has nextSibling on it 🤔
     const handleDocumentKeydowns = (e: any) => {
         if (isOpen) {
@@ -147,18 +170,25 @@ export const BasicSelect: FC<BasicSelectProps> = ({
         }
     }
 
+    /**
+     * This key down handler is specific to the root node. 
+     * it ensures that the menu opens if the user presses any
+     * key that toggles the menu while the focus is on the root node
+     */
     const handleKeyDown = ({ key: pressedKey }: { key: string }): void => {
         if (keysThatToggleMenu.includes(pressedKey)) {
             setIsOpen(!isOpen)
         }
     }
 
+    // Helper funciton to set a selected value and close the drop down
     const setSelectedAndClose = (option: Option) => {
         setSelectedOption(option)
         onChange && onChange(option)
         setIsOpen(false)
     }
 
+    // handle blur just calls whatever the user passes through props
     const handleBlur = (e: SyntheticEvent) => {
         e.preventDefault();
         onBlur && onBlur();
@@ -171,6 +201,17 @@ export const BasicSelect: FC<BasicSelectProps> = ({
             onBlur={handleBlur}
             id={id}
         >
+            {
+                /**
+                 * what the user sees / what is always visible
+                 * doesnt matter about the open / closed state
+                 * 1) wrapper with borders
+                 * 2) Placeholder
+                 * 3) Selected value
+                 * 4) Down arrow
+                 */
+            }
+
             <StyledPlaceHolderWrapper>
                 <StyledPlaceholder>
                     {selectedOption != undefined ? selectedOption.display : placeholder}
@@ -179,6 +220,16 @@ export const BasicSelect: FC<BasicSelectProps> = ({
                     </StyledDownArrowWrapper>
                 </StyledPlaceholder>
             </StyledPlaceHolderWrapper>
+
+            {
+                /**
+                 * What the user does not initially see.
+                 * Matters if the menu is open or closed.
+                 * Consists of:
+                 * 1) Drop down menu list <BasicSelectMenu />
+                 * 2) Drop down menu list items <BasicSelectListItemProps />
+                 */
+            }
             <BasicSelectMenu
                 isOpen={isOpen}
                 options={options}

@@ -11,8 +11,8 @@ function App() {
           { value: '2', display: '2' },
           { value: '3', display: '3' }
         ]}
-        placeholder={'Hellow World!'}
-        value={'1'}
+        placeholder={'Hello World!'}
+        value={''}
         labelText={'Basic Select Label'}
         name={'Basic Select'}
         id={'basic-select'}
