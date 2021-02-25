@@ -138,20 +138,22 @@ export const BasicSelect: FC<BasicSelectProps> = ({
      * it also makes sure that Escape key closes the menu and that Tab key
      * does not work inside the menu while it is open. This is default <select /> behavior.
      */
-    // TODO find an event type that has nextSibling on it 🤔
-    const handleDocumentKeydowns = (e: any) => {
+    const handleDocumentKeydowns = (e: any) => { // TODO find an event type that has nextSibling on it 🤔
         if (isOpen) {
 
+            // this is needed to prevent firefox from stealing the arrow key events
+            e.preventDefault();
+
+            // call the onKeyDown callback if the user specified an onKeyDown prop
             onKeyDown && onKeyDown()
 
+            // Assign specific functionality to each key and fire it on press
             switch (e.key) {
                 case "Escape": {
-                    e.preventDefault();
                     setIsOpen(false);
                     break;
                 }
                 case "Tab": {
-                    e.preventDefault();
                     break;
                 }
                 case "ArrowDown": {
