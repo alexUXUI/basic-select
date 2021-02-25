@@ -2,7 +2,7 @@ body {
   display: flex;
   justify-content: center;
   background: #ccc;
-  padding-top: 20vh;
+  padding-top: 10vh;
 }
 
 .App {
