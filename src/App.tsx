@@ -21,13 +21,13 @@ function App() {
         onBlur={() => { }}
         onKeyDown={() => { }}
       />
-
+      {/* 
       <select>
         <option disabled={true}>Placeholder</option>
         <option>1</option>
         <option>2</option>
         <option>3</option>
-      </select>
+      </select> */}
     </div>
   );
 }

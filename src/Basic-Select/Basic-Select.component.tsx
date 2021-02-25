@@ -60,7 +60,7 @@ export const BasicSelect: FC<BasicSelectProps> = ({
 
     const basicSelectRef = useRef<HTMLDivElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
-    const focusedListItemRef = useRef<any>(null);
+    const focusedListItemRef = useRef<HTMLLIElement>(null);
 
     const keysThatToggleMenu = [" ", "Enter"];
 
@@ -79,7 +79,7 @@ export const BasicSelect: FC<BasicSelectProps> = ({
             const listHasItem = focusedListItemRef && focusedListItemRef.current;
 
             if (listHasItem) {
-                focusedListItemRef.current.focus()
+                focusedListItemRef?.current?.focus()
             }
         } else {
             if (selectedOption && basicSelectRef && basicSelectRef.current) {
@@ -109,7 +109,15 @@ export const BasicSelect: FC<BasicSelectProps> = ({
     }
 
     const handleDocumentKeydowns = (e: any) => {
-        console.log(e)
+
+        let DOMNodeWithFocus = document.activeElement;
+
+        let userTabbedOutside = !basicSelectRef?.current?.contains(DOMNodeWithFocus)
+
+        if (userTabbedOutside) {
+            setIsOpen(false)
+        }
+
         if (isOpen) {
             if (e.key === "ArrowDown") {
                 if (e && e.target && e.target.nextSibling) {
@@ -126,9 +134,16 @@ export const BasicSelect: FC<BasicSelectProps> = ({
     }
 
     const handleKeyDown = ({ key: pressedKey }: { key: string }): void => {
+        console.log(pressedKey)
         if (keysThatToggleMenu.includes(pressedKey)) {
             setIsOpen(!isOpen)
         }
+    }
+
+    const setSelectedAndClose = (option: Option) => {
+        setSelectedOption(option)
+        onChange && onChange(option)
+        setIsOpen(false)
     }
 
     return (
@@ -155,70 +170,20 @@ export const BasicSelect: FC<BasicSelectProps> = ({
                             {
                                 options && options.length
                                     ? options.map((option, i) => {
-                                        if (selectedOption && selectedOption.value === option.value) {
-                                            return (
-                                                <li
-                                                    tabIndex={0}
-                                                    ref={focusedListItemRef}
-                                                    key={i}
-                                                    onClick={(e) => {
-                                                        console.log('setting selected')
-                                                        setSelectedOption(option)
-                                                        console.log('set selected')
-                                                        onChange && onChange(option)
-                                                        console.log('closing')
-                                                        setIsOpen(false)
-                                                        console.log('closed')
-                                                    }}
-                                                    onKeyDown={({ key }) => {
-                                                        if (keysThatToggleMenu.includes(key)) {
-                                                            setSelectedOption(option)
-                                                            onChange && onChange(option)
-                                                            setIsOpen(false)
-                                                        }
-                                                    }}
-                                                >
-                                                    {option.display}
-                                                </li>
-                                            )
-                                        }
-                                        if (i === 0 && !selectedOption) {
-                                            return (
-                                                <li
-                                                    tabIndex={0}
-                                                    ref={focusedListItemRef}
-                                                    key={i}
-                                                    onClick={(e) => {
-                                                        setSelectedOption(option)
-                                                        onChange && onChange(option)
-                                                        setIsOpen(false)
-                                                    }}
-                                                    onKeyDown={({ key }) => {
-                                                        if (keysThatToggleMenu.includes(key)) {
-                                                            setSelectedOption(option)
-                                                            onChange && onChange(option)
-                                                            setIsOpen(false)
-                                                        }
-                                                    }}
-                                                >
-                                                    {option.display}
-                                                </li>
-                                            )
-                                        }
+                                        let listItemHasFocus = Boolean(selectedOption && selectedOption.value === option.value || i === 0)
+
                                         return (
                                             <li
                                                 tabIndex={0}
+                                                ref={listItemHasFocus ? focusedListItemRef : null}
                                                 key={i}
                                                 onClick={(e) => {
-                                                    setSelectedOption(option)
-                                                    onChange && onChange(option)
-                                                    setIsOpen(false)
+                                                    e.preventDefault()
+                                                    setSelectedAndClose(option)
                                                 }}
                                                 onKeyDown={({ key }) => {
                                                     if (keysThatToggleMenu.includes(key)) {
-                                                        setSelectedOption(option)
-                                                        onChange && onChange(option)
-                                                        setIsOpen(false)
+                                                        setSelectedAndClose(option)
                                                     }
                                                 }}
                                             >
