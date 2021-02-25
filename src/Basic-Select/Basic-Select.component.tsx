@@ -57,7 +57,7 @@ export const BasicSelect: FC<BasicSelectProps> = ({
     // DOM node for currently focused list item
     const focusedListItemRef = useRef<HTMLLIElement>(null);
 
-    // toggles open and closed
+    // toggles open and closed " " is how spacebar is represented in event.key
     const keysThatToggleMenu = [" ", "Enter"];
 
     /**
