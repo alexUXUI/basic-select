@@ -5,8 +5,7 @@ export const StyledBasicSelect = styled.div.attrs((props) => ({
     tabIndex: 0,
     role: 'select'
 }))`
-    
-    /* background: white; */
+    height: fit-content;
 `
 
 export const StyledPlaceholder = styled.span.attrs((props) => ({
@@ -25,4 +24,23 @@ export const StyledDownArrowWrapper = styled.span.attrs((props) => ({
     display: inline-block;
     min-width: 50px;
     text-align: right;
+`
+
+export const StyledPlaceHolderWrapper = styled.span`
+    border: 1px solid #eaeaea;
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+`
+
+export const StyledMenu = styled.ul`
+    list-style: none;
+    padding: 0;
+    border: 1px solid #eaeaea;
+    border-radius: 14px;
+`
+
+export const StyledMenuItem = styled.li`
+    width: 100%;
 `

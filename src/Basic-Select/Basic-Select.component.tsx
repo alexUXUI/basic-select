@@ -1,7 +1,27 @@
-import { FC, SyntheticEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
+//WHAT DO WE NEED
+// 1. wrapper/root node X
+// 2. open/close state X
+// 3. selected state and what it is X
+// 4. placeholder
+// 5. dropdown menu of sorts X
+// 6. list items (options) X
+// 7. aria accessibility
+// 8. keyboard navigation X
+// 9. STYLES omg
+// 10. tests
+// 11. abstractions (if needed. perhaps not this run)
+
+import { Dispatch, FC, SetStateAction, SyntheticEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 import { BiChevronDown } from "react-icons/bi";
-import { StyledBasicSelect, StyledPlaceholder, StyledDownArrowWrapper } from './Basic-Select.styled'
+import {
+    StyledBasicSelect,
+    StyledPlaceholder,
+    StyledDownArrowWrapper,
+    StyledPlaceHolderWrapper,
+    StyledMenuItem,
+    StyledMenu
+} from './Basic-Select.styled'
 
 export interface Option {
     value: string
@@ -20,27 +40,6 @@ export interface BasicSelectProps {
     onBlur?: () => void
     onKeyDown?: () => void
 }
-
-//WHAT DO WE NEED
-// 1. wrapper/root node X
-// 2. open/close state X
-// 3. selected state and what it is X
-// 4. placeholder
-// 5. dropdown menu of sorts X
-// 6. list items (options) X
-// 7. aria accessibility
-// 8. keyboard navigation
-// 9. STYLES omg
-// 10. tests
-// 11. abstractions (if needed. perhaps not this run)
-
-const StyledPlaceHolderWrapper = styled.span`
-    border: 1px solid #eaeaea;
-    border-radius: 14px;
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-`
 
 export const BasicSelect: FC<BasicSelectProps> = ({
     options,
@@ -109,32 +108,34 @@ export const BasicSelect: FC<BasicSelectProps> = ({
     }
 
     const handleDocumentKeydowns = (e: any) => {
-
-        let DOMNodeWithFocus = document.activeElement;
-
-        let userTabbedOutside = !basicSelectRef?.current?.contains(DOMNodeWithFocus)
-
-        if (userTabbedOutside) {
-            setIsOpen(false)
-        }
-
         if (isOpen) {
-            if (e.key === "ArrowDown") {
-                if (e && e.target && e.target.nextSibling) {
-                    e.target.nextSibling.focus();
+            switch (e.key) {
+                case "Escape": {
+                    e.preventDefault();
+                    setIsOpen(false);
+                    break;
                 }
-            }
-
-            else if (e.key === "ArrowUp") {
-                if (e && e.target && e.target.previousSibling) {
-                    e.target.previousSibling.focus()
+                case "Tab": {
+                    e.preventDefault();
+                    break;
+                }
+                case "ArrowDown": {
+                    if (e && e.target && e.target.nextSibling) {
+                        e.target.nextSibling.focus();
+                    }
+                    break;
+                }
+                case "ArrowUp": {
+                    if (e && e.target && e.target.previousSibling) {
+                        e.target.previousSibling.focus()
+                    }
+                    break;
                 }
             }
         }
     }
 
     const handleKeyDown = ({ key: pressedKey }: { key: string }): void => {
-        console.log(pressedKey)
         if (keysThatToggleMenu.includes(pressedKey)) {
             setIsOpen(!isOpen)
         }
@@ -146,14 +147,16 @@ export const BasicSelect: FC<BasicSelectProps> = ({
         setIsOpen(false)
     }
 
+    const handleBlur = (e: SyntheticEvent) => {
+        e.preventDefault();
+        onBlur && onBlur();
+    }
+
     return (
         <StyledBasicSelect
             ref={basicSelectRef}
             onKeyDown={handleKeyDown}
-            onBlur={(e) => {
-                e.preventDefault();
-                onBlur && onBlur();
-            }}
+            onBlur={handleBlur}
         >
             <StyledPlaceHolderWrapper>
                 <StyledPlaceholder>
@@ -163,40 +166,14 @@ export const BasicSelect: FC<BasicSelectProps> = ({
                     </StyledDownArrowWrapper>
                 </StyledPlaceholder>
             </StyledPlaceHolderWrapper>
-            {
-                isOpen
-                    ? (
-                        <ul data-testid="basic-select__menu">
-                            {
-                                options && options.length
-                                    ? options.map((option, i) => {
-                                        let listItemHasFocus = Boolean(selectedOption && selectedOption.value === option.value || i === 0)
-
-                                        return (
-                                            <li
-                                                tabIndex={0}
-                                                ref={listItemHasFocus ? focusedListItemRef : null}
-                                                key={i}
-                                                onClick={(e) => {
-                                                    e.preventDefault()
-                                                    setSelectedAndClose(option)
-                                                }}
-                                                onKeyDown={({ key }) => {
-                                                    if (keysThatToggleMenu.includes(key)) {
-                                                        setSelectedAndClose(option)
-                                                    }
-                                                }}
-                                            >
-                                                {option.display}
-                                            </li>
-                                        )
-                                    })
-                                    : null
-                            }
-                        </ul>
-                    )
-                    : null
-            }
+            <BasicSelectMenu
+                isOpen={isOpen}
+                options={options}
+                selectedOption={selectedOption ? selectedOption : undefined}
+                focusedListItemRef={focusedListItemRef}
+                setSelectedAndClose={setSelectedAndClose}
+                keysThatToggleMenu={keysThatToggleMenu}
+            />
             {
                 validationMessage
                     ? (
@@ -209,5 +186,85 @@ export const BasicSelect: FC<BasicSelectProps> = ({
                     : null
             }
         </StyledBasicSelect>
+    )
+}
+
+export interface BasicSelectMenuProps {
+    isOpen: boolean
+    options: Option[]
+    selectedOption: Option | undefined
+    focusedListItemRef: React.RefObject<HTMLLIElement>
+    setSelectedAndClose: (option: Option) => void
+    keysThatToggleMenu: string[]
+}
+
+export const BasicSelectMenu: FC<BasicSelectMenuProps> = ({
+    isOpen,
+    options,
+    selectedOption,
+    focusedListItemRef,
+    setSelectedAndClose,
+    keysThatToggleMenu
+}): JSX.Element | null => {
+
+    let hasOptionsToShow = options && options.length;
+
+    if (isOpen && hasOptionsToShow) {
+        return (
+            <StyledMenu data-testid="basic-select__menu">
+                {
+                    options.map((option, i) => {
+                        let listItemHasFocus = Boolean(selectedOption && selectedOption.value === option.value || i === 0)
+
+                        return (
+                            <BasicSelectListItem
+                                listItemHasFocus={listItemHasFocus}
+                                focusedListItemRef={focusedListItemRef}
+                                setSelectedAndClose={setSelectedAndClose}
+                                keysThatToggleMenu={keysThatToggleMenu}
+                                option={option}
+                                key={i}
+                            />
+                        )
+                    })
+                }
+            </StyledMenu>
+        )
+    }
+
+    return null
+}
+
+export interface BasicSelectListItemProps {
+    option: Option
+    listItemHasFocus: boolean
+    focusedListItemRef: React.RefObject<HTMLLIElement>
+    setSelectedAndClose: (option: Option) => void
+    keysThatToggleMenu: string[]
+}
+
+export const BasicSelectListItem: FC<BasicSelectListItemProps> = ({
+    listItemHasFocus,
+    focusedListItemRef,
+    setSelectedAndClose,
+    keysThatToggleMenu,
+    option,
+}): JSX.Element => {
+    return (
+        <StyledMenuItem
+            tabIndex={0}
+            ref={listItemHasFocus ? focusedListItemRef : null}
+            onClick={(e) => {
+                e.preventDefault()
+                setSelectedAndClose(option)
+            }}
+            onKeyDown={({ key }) => {
+                if (keysThatToggleMenu.includes(key)) {
+                    setSelectedAndClose(option)
+                }
+            }}
+        >
+            {option.display}
+        </StyledMenuItem>
     )
 }
