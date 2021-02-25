@@ -1,18 +1,4 @@
-//WHAT DO WE NEED
-// 1. wrapper/root node X
-// 2. open/close state X
-// 3. selected state and what it is X
-// 4. placeholder
-// 5. dropdown menu of sorts X
-// 6. list items (options) X
-// 7. aria accessibility
-// 8. keyboard navigation X
-// 9. STYLES omg
-// 10. tests
-// 11. abstractions (if needed. perhaps not this run)
-
-import { Dispatch, FC, SetStateAction, SyntheticEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
-import styled, { css, keyframes } from "styled-components";
+import { FC, SyntheticEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { BiChevronDown } from "react-icons/bi";
 import {
     StyledBasicSelect,
@@ -63,6 +49,11 @@ export const BasicSelect: FC<BasicSelectProps> = ({
 
     const keysThatToggleMenu = [" ", "Enter"];
 
+    /**
+     * This effect adds the event listeners to the DOM
+     * 1) listener for clicks to close the menu if user clicks outside
+     * 2) listener for keydown events to enable keyboard nav
+     */
     useLayoutEffect(() => {
         document.addEventListener('click', handleDocumentClicks, false);
         document.addEventListener('keydown', handleDocumentKeydowns, false);
@@ -73,11 +64,28 @@ export const BasicSelect: FC<BasicSelectProps> = ({
         }
     }, [isOpen])
 
+    /**
+     * This effect sets the current value of the dropdown if the user 
+     * specifices one through the props
+     */
+    useLayoutEffect(() => {
+        if (value) {
+            const currentValue = options.filter((option: Option) => option.value == value)
+            setSelectedOption(currentValue[0])
+        }
+    }, [value])
+
+    /**
+     * This effect puts the focus on the correct list item 
+     * when the drop down menu is opened. If a value was previously
+     * selected, this will put the focus on that element. If not, this
+     * will put the focus on the first element in the list
+     */
     useEffect(() => {
         if (isOpen) {
-            const listHasItem = focusedListItemRef && focusedListItemRef.current;
+            const listHasAtLeastOneItem = focusedListItemRef && focusedListItemRef.current;
 
-            if (listHasItem) {
+            if (listHasAtLeastOneItem) {
                 focusedListItemRef?.current?.focus()
             }
         } else {
@@ -107,8 +115,12 @@ export const BasicSelect: FC<BasicSelectProps> = ({
         }
     }
 
+    // TODO find an event type that has nextSibling on it 🤔
     const handleDocumentKeydowns = (e: any) => {
         if (isOpen) {
+
+            onKeyDown && onKeyDown()
+
             switch (e.key) {
                 case "Escape": {
                     e.preventDefault();
@@ -157,6 +169,7 @@ export const BasicSelect: FC<BasicSelectProps> = ({
             ref={basicSelectRef}
             onKeyDown={handleKeyDown}
             onBlur={handleBlur}
+            id={id}
         >
             <StyledPlaceHolderWrapper>
                 <StyledPlaceholder>

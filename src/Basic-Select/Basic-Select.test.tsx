@@ -38,8 +38,6 @@ describe('<BasicSelect /> test suite', () => {
         fireEvent.keyDown(basicSelect, { key: ' ', code: 'Space' })
 
         expect(dropDownMenu).not.toBeInTheDocument()
-
-
     })
 
 

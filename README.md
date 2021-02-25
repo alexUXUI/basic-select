@@ -1,3 +1,16 @@
+WHAT DO WE NEED
+ 1. wrapper/root node X
+ 2. open/close state X
+ 3. selected state and what it is X
+ 4. placeholder
+ 5. dropdown menu of sorts X
+ 6. list items (options) X
+ 7. aria accessibility
+ 8. keyboard navigation X
+ 9. STYLES omg
+ 10. tests 
+ 11. abstractions (if needed. perhaps not this run)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

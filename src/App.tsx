@@ -12,7 +12,7 @@ function App() {
           { value: '3', display: '3' }
         ]}
         placeholder={'Hellow World!'}
-        value={''}
+        value={'1'}
         labelText={'Basic Select Label'}
         name={'Basic Select'}
         id={'basic-select'}
